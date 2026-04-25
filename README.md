@@ -92,69 +92,99 @@ Data is automatically:
 ```mermaid
 classDiagram
 
+%% =========================
+%% Abstract Base Class
+%% =========================
 class User {
     <<abstract>>
-    +showMenu()
+    +showMenu() void
 }
 
-class Admin
-class PetOwner
-class Veterinarian
+%% =========================
+%% Core Users
+%% =========================
+class Admin {
+    -petOwners: List~PetOwner~
+    -veterinarians: List~Veterinarian~
+    +addPetOwner(owner: PetOwner) void
+    +removePetOwner(name: String) void
+    +searchPetOwner(name: String) boolean
+    +addVeterinarian(vet: Veterinarian) void
+    +removeVeterinarian(name: String) void
+    +searchVeterinarian(name: String) boolean
+    +listUsers() void
+}
 
+class PetOwner {
+    -id: int
+    -name: String
+    -email: String
+    -pets: List~Pet~
+    +addPet(pet: Pet) void
+    +getPetByName(name: String) Pet
+    +bookAppointment(vet: Veterinarian, pet: Pet, dateTime: LocalDateTime) void
+    +viewMedicalHistory(pet: Pet) void
+}
+
+class Veterinarian {
+    -id: int
+    -name: String
+    +updateHealthRecord(pet: Pet, status: String) void
+    +providePrescription(pet: Pet, medicine: String, dosage: String) void
+}
+
+%% =========================
+%% Domain Entities
+%% =========================
+class Pet {
+    -id: int
+    -name: String
+    -breed: String
+    -age: int
+    -appointments: List~Appointment~
+    +addAppointment(app: Appointment) void
+}
+
+class Appointment {
+    -appointmentID: int
+    -dateTime: LocalDateTime
+    -status: String
+}
+
+class HealthRecord {
+    -healthStatus: String
+    +updateHealthStatus(status: String) void
+}
+
+class Prescription {
+    -id: int
+    -medicineName: String
+    -dosage: String
+}
+
+%% =========================
+%% Inheritance
+%% =========================
 User <|-- Admin
 User <|-- PetOwner
 User <|-- Veterinarian
 
-class PetOwner {
-    -id
-    -name
-    -email
-    -pets
-    +addPet()
-    +getPetByName()
-}
+%% =========================
+%% Relationships
+%% =========================
+PetOwner "1" --> "*" Pet : owns
+Pet "1" --> "*" Appointment : has
+Veterinarian "1" --> "*" Appointment : handles
 
-class Veterinarian {
-    -id
-    -name
-}
+%% Composition (Strong Ownership)
+Pet "1" *-- "1" HealthRecord : has
+Pet "1" *-- "1" Prescription : has
 
-class Pet {
-    -id
-    -ownerId
-    -name
-    -breed
-    -age
-    -healthRecord
-    -prescription
-    -appointments
-}
-
-class Appointment {
-    -appointmentID
-    -dateTime
-    -status
-    -vetId
-}
-
-class HealthRecord {
-    -healthStatus
-}
-
-class Prescription {
-    -id
-    -medicineName
-    -dosage
-}
-
-PetOwner "1" --> "*" Pet
-Pet "1" --> "*" Appointment
-Pet "1" --> "1" HealthRecord
-Pet "1" --> "1" Prescription
-Veterinarian "1" --> "*" Appointment
+%% Interaction
+PetOwner --> Veterinarian : books appointment
 ```
 
-📌 *Figure 1: UML Class Diagram showing the relationships between users and core system entities.*
+📌 This diagram represents the system architecture following OOP and layered design principles.
 
 ---
 
